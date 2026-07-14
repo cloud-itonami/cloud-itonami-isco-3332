@@ -4,6 +4,26 @@ Open Occupation Blueprint for **ISCO-08 3332**: Conference and Event Planners.
 
 This repository designs a forkable OSS business for an independent event planning practice: a venue-setup and material-handling robot manages on-site logistics under a governor-gated actor, so the practice keeps its own planning records instead of renting a closed event-management SaaS.
 
+**Maturity: `:implemented`.** `src/eventplanning/` implements the
+`EventPlanningActor` as a `langgraph.graph/state-graph`
+(`eventplanning.actor`) wired to an `Event Advisor`
+(`eventplanning.advisor`) and an independent `EventPlanningGovernor`
+(`eventplanning.governor`), following the itonami actor pattern
+(ADR-2607011000): `:intake -> :advise -> :govern -> :decide -+-> :commit
+(:ok?) +-> :request-approval (:escalate?, human-in-the-loop interrupt)
++-> :hold (:hard?)`. 14 tests / 29 assertions green (`clojure -M:test`).
+HARD invariants (always hold, never overridable): client provenance,
+no-actuation (`:effect` must be `:propose`), a registered event basis
+for any booking proposal, the proposed contract amount not exceeding
+the event's registered budget ceiling (contracting beyond it is
+unauthorized spending, not proactive planning), and verified venue
+capacity before any booking can be finalized (finalizing without it
+is an overcapacity risk, not efficient service). Always-escalate ops
+(human sign-off regardless of confidence, mapping this repo's Trust
+Controls in [`docs/business-model.md`](docs/business-model.md)):
+`:approve-over-budget-vendor-contract` and
+`:approve-guest-list-disclosure`.
+
 ## Robotics premise
 
 All cloud-itonami verticals are designed on the premise that a **robot performs
