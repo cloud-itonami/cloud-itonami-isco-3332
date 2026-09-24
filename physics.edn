@@ -1,0 +1,42 @@
+;; What this occupation's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:physics` runs it.
+;;
+;; README "Robotics premise": a venue-setup and material-handling robot
+;; performs signage placement, seating-layout staging and equipment transport
+;; (ISCO 3332 conference and event planners). Its physical work: hauling
+;; equipment cases across the hall, moving stacks of chairs (tall, so tip-over
+;; matters), and placing sign panels on their stands.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isco-3332"
+ :cases
+ [{:id :equipment-cases-across-hall
+   :kind :transport
+   :procedure "robot tows a dolly of AV / staging equipment cases 80 m from the loading bay to the stage"
+   :params {:mass-kg 120.0 :distance-m 80.0 :v-max-mps 1.2 :a-max-mps2 0.5
+            :brake-decel-mps2 0.8 :drive-force-n 400.0 :crr 0.02
+            :cog-height-m 0.60 :support-half-length-m 0.40}
+   :sweep {:param :payload-kg :values [100.0 200.0 300.0 500.0 800.0]}
+   :quantity :cycle-time-s
+   :limit {:max 90.0 :basis "estimate: one bay-to-stage leg inside the load-in window agreed with the venue"}
+   :boundary {:lo 50.0 :hi 1800.0}}
+  {:id :chair-stack-stop
+   :kind :transport
+   :procedure "robot moves a stack of banquet chairs 30 m to its row and stops; the stack height sets the centre of gravity"
+   :params {:mass-kg 60.0 :payload-kg 45.0 :distance-m 30.0 :v-max-mps 1.0 :a-max-mps2 0.5
+            :brake-decel-mps2 0.8 :drive-force-n 200.0 :crr 0.02 :support-half-length-m 0.35}
+   :sweep {:param :cog-height-m :values [0.5 0.8 1.0 1.3 1.6]}
+   :quantity :min-tipover-margin
+   :limit {:min 0.7 :basis "estimate: keep 70% of the static anti-tip moment in reserve for cable ramps and carpet edges in the hall"}
+   :boundary {:lo 0.3 :hi 2.0}}
+  {:id :sign-panel-to-stand
+   :kind :manipulator
+   :procedure "arm lifts a sign panel from the cart and seats it on its stand at eye height"
+   :params {:l1-m 0.55 :l2-m 0.50 :m1-kg 6.0 :m2-kg 4.0
+            :from [0.60 0.10] :to [0.35 0.85] :duration-s 3.0 :steps 600}
+   :sweep {:param :payload-kg :values [1.0 3.0 5.0 8.0 12.0]}
+   :quantity :peak-tau1-nm
+   :limit {:max 110.0 :basis "estimate: continuous shoulder torque of a ~10 kg-payload collaborative arm"}
+   :boundary {:lo 0.5 :hi 30.0}}]}
