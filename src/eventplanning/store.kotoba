@@ -1,6 +1,6 @@
 (ns eventplanning.store
   "SSoT for the ISCO-08 3332 independent event planning practice
-  actor (itonami actor pattern, ADR-2607011000 / CLAUDE.md Actors
+  actor (itonami actor pattern, ADR-2607011000 / AGENTS.md Actors
   section; README's 'Robotics premise' — a venue-setup and material-
   handling robot performs signage placement, seating-layout staging
   and equipment transport under this advisor/governor pair, which
